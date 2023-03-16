@@ -26,7 +26,6 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     displayOverlay("Error", "", error.message);
   }
 });
-
 function displayOverlay(title, body, summary, x, y) {
   // Create the overlay elements
   const overlay = document.createElement("div");
@@ -46,10 +45,12 @@ function displayOverlay(title, body, summary, x, y) {
   const summaryEl = document.createElement("p");
   summaryEl.textContent = `Summary: ${summary}`;
 
+  // Create the spinner element
+  const spinner = document.createElement("div");
+  spinner.className = "spinner";
+
   // Assemble the elements
-  overlayBox.appendChild(titleEl);
-  overlayBox.appendChild(bodyEl);
-  overlayBox.appendChild(summaryEl);
+  overlayBox.appendChild(spinner);
   overlay.appendChild(overlayBox);
   document.body.appendChild(overlay);
 
@@ -60,4 +61,12 @@ function displayOverlay(title, body, summary, x, y) {
       document.removeEventListener("click", closeOverlay);
     }
   });
+
+  // Remove the spinner and display content after the summary is fetched
+  setTimeout(() => {
+    spinner.remove();
+    overlayBox.appendChild(titleEl);
+    overlayBox.appendChild(bodyEl);
+    overlayBox.appendChild(summaryEl);
+  }, 1000); // Replace 1000 with the actual time it takes to fetch the summary
 }

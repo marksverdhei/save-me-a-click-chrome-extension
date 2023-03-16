@@ -15,6 +15,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.type === "fetchSummary") {
     const summary = getDummySummary();
+    // await new Promise(r => setTimeout(r, 5000));
     sendResponse(summary);
     return true; // Keep the message channel open for asynchronous sendResponse
   }
