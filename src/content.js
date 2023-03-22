@@ -5,32 +5,56 @@ document.addEventListener("contextmenu", (event) => {
   lastRightClickPosition.y = event.pageY;
 });
 
-chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-  const { url } = request;
+chrome.runtime.onMessage.addListener((message, sender) => {
+  if (message.startSpinner) {
+    const overlay = displayOverlay("Loading...", "", "", lastRightClickPosition.x, lastRightClickPosition.y);
+    chrome.runtime.sendMessage({ url: message.url, type: "fetchSummary", overlayId: overlay.id })
 
-  try {
-    chrome.runtime.sendMessage(
-      { type: "fetchSummary", url: url },
-      (response) => {
-        const { title, body, summary } = response;
-        displayOverlay(
-          title,
-          body,
-          summary,
-          lastRightClickPosition.x,
-          lastRightClickPosition.y
-        );
-      }
-    );
-  } catch (error) {
-    displayOverlay("Error", "", error.message);
+  } else if (message.summary) {
+    const { title, body, answer } = message.summary;
+    console.log("summary received in content.js. Updating overlay");
+    updateOverlay(message.overlayId, answer, body, title);
+  } else if (message.error) {
+    updateOverlay(message.overlayId, "Error", "", message.error);
+  } else {
+    chrome.runtime.sendMessage({ url: message.url, type: "startSpinner" })
   }
 });
+
+
+function updateOverlay(overlayId, title, body, summary) {
+  console.log("Update overlay called");
+  const overlay = document.getElementById(overlayId);
+  console.log(overlayId)
+  console.log(overlay)
+
+  // Remove the spinner
+  const spinner = overlay.querySelector(".spinner");
+  if (spinner) {
+    spinner.remove();
+  }
+  console.log("Spinner removed");
+
+  // Update the content
+  const overlayBox = overlay.querySelector(".overlay-box");
+  overlayBox.innerHTML = "";
+
+  const titleEl = document.createElement("h3");
+  titleEl.textContent = title;
+  overlayBox.appendChild(titleEl);
+
+  const summaryEl = document.createElement("p");
+  summaryEl.textContent = `Title: ${summary}`;
+  overlayBox.appendChild(summaryEl);
+}
+
+
 
 function displayOverlay(title, body, summary, x, y) {
   // Create the overlay elements
   const overlay = document.createElement("div");
   overlay.className = "overlay";
+  overlay.id = "overlay" + document.querySelectorAll(".overlay").length
   overlay.style.left = `${x}px`;
   overlay.style.top = `${y}px`;
 
@@ -63,11 +87,8 @@ function displayOverlay(title, body, summary, x, y) {
     }
   });
 
-  // Remove the spinner and display content after the summary is fetched
-  setTimeout(() => {
-    spinner.remove();
-    overlayBox.appendChild(titleEl);
-    overlayBox.appendChild(bodyEl);
-    overlayBox.appendChild(summaryEl);
-  }, 1000); // Replace 1000 with the actual time it takes to fetch the summary
+  return overlay;
 }
+
+
+
