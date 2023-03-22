@@ -26,6 +26,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     displayOverlay("Error", "", error.message);
   }
 });
+
 function displayOverlay(title, body, summary, x, y) {
   // Create the overlay elements
   const overlay = document.createElement("div");
