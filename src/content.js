@@ -64,11 +64,8 @@ function displayOverlay(title, body, summary, x, y) {
   const titleEl = document.createElement("h2");
   titleEl.textContent = title;
 
-  const bodyEl = document.createElement("p");
-  bodyEl.textContent = `Body: ${body}`;
-
   const summaryEl = document.createElement("p");
-  summaryEl.textContent = `Summary: ${summary}`;
+  summaryEl.textContent = `${summary}`;
 
   // Create the spinner element
   const spinner = document.createElement("div");
