@@ -9,10 +9,22 @@
         padding: 10px;
         font-family: Arial, sans-serif;
       }
+      div {
+        margin-bottom: 10px;
+      }
+      button {
+        width: 200px;
+      }
     </style>
   </head>
   <body>
     <h1>Save Me A Click</h1>
     <p>Right-click on any link and select "Save me a click" to see a summary.</p>
+    <div>
+      <label for="apiKey">API Key:</label>
+      <input type="text" id="apiKey" name="apiKey">
+    </div>
+    <button id="saveApiKey">Save API Key</button>
+    <script src="popup.js"></script>
   </body>
 </html>

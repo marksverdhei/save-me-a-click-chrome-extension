@@ -5,7 +5,8 @@
   "description": "Summarize any link with a right-click",
   "permissions": [
     "contextMenus",
-    "activeTab"
+    "activeTab",
+    "storage"
   ],
   "action": {
     "default_popup": "html/popup.html",
