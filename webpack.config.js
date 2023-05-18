@@ -1,3 +1,4 @@
+const webpack = require('webpack');
 const path = require('path');
 
 module.exports = {
@@ -39,9 +40,25 @@ module.exports = {
       "buffer": require.resolve("buffer/"),
       "zlib": require.resolve("browserify-zlib"),
       "path": require.resolve("path-browserify"),
+
+    //   "process": require.resolve("process-browserify"),
+
       "fs": require.resolve("browserify-fs"),
       "tls": false, // Set to false if there is no browser equivalent
       "net": false // Set to false if there is no browser equivalent
     }
-  }
+  },
+  plugins: [
+    // new webpack.DefinePlugin({
+    //     'process.env.NODE_ENV': JSON.stringify('production')
+    //   })
+    new webpack.ProvidePlugin({
+        process: 'process/browser',
+    }),
+    new webpack.ProvidePlugin({
+        process: 'process/browser',
+        Buffer: ['buffer', 'Buffer'],
+      })
+
+  ]
 };

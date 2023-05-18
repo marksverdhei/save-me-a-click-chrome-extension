@@ -54,7 +54,9 @@ chrome.runtime.onMessage.addListener(async (message, sender) => {
       chrome.tabs.sendMessage(sender.tab.id, { summary: summary, overlayId: message.overlayId });
     } catch (error) {
       console.log("There was an error, sending to content.js")
-
+      console.log(error.name); 
+      console.log(error.message);
+      console.log(error.stack);
       chrome.tabs.sendMessage(sender.tab.id, { error: error.message, overlayId: message.overlayId });
     }
   }
@@ -68,16 +70,29 @@ chrome.runtime.onMessage.addListener(async (message, sender) => {
  */
 async function getSummary(url) {
   const article = await Article(url);
+  const title = article.title;
+  const body = article.body;
   
-  if (!(article.title && article.text)) throw new Error("missing article title or text");
-  pre_prompt = PROMPTS["EN"]
-  full_prompt = pre_prompt.extend([
+  console.log(article);
+
+  if (!(title && text)) 
+    throw new Error("missing article title or text");
+
+  pre_prompt = PROMPTS["en"]
+  full_prompt = pre_prompt.concat([
     {"role": "user", "content": `<article-title>${title}</article-title>`},
     {"role": "user", "content": `<article-body>${body}</article-body>`},
   ])
   console.log(full_prompt)
   
-  return article.title
+  let result = {
+    title: article.title,
+    body: article.text,
+    answer: "<summary placeholder> " + article.title,
+  };
+  console.log(result);
+
+  return result;
   // const response = await fetch("http://localhost:8000", {
   //   method: "POST",
   //   headers: {
