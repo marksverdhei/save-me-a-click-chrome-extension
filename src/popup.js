@@ -1,10 +1,10 @@
 window.onload = function(){
     chrome.storage.sync.get(['apiKey'], function(result) {
         if(result.apiKey){
-        document.getElementById('status').textContent = 'API key saved!';
-        document.getElementById('apiKeyDiv').style.display = 'none';
-        document.getElementById('saveApiKey').style.display = 'none';
-        document.getElementById('changeApiKey').style.display = 'block';
+            document.getElementById('status').textContent = 'API key saved!';
+            document.getElementById('apiKeyDiv').style.display = 'none';
+            document.getElementById('saveApiKey').style.display = 'none';
+            document.getElementById('changeApiKey').style.display = 'block';
         }
     });
 
