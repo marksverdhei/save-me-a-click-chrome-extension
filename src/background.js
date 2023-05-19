@@ -24,6 +24,7 @@ const PROMPTS = {
   ],
 }
 
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "saveMeAClick",
@@ -32,12 +33,14 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "saveMeAClick") {
     console.log("Sending saveMeAClick to content.js")
     chrome.tabs.sendMessage(tab.id, { url: info.linkUrl });
   }
 });
+
 
 chrome.runtime.onMessage.addListener(async (message, sender) => {
   if (message.type === "startSpinner") {
@@ -49,7 +52,6 @@ chrome.runtime.onMessage.addListener(async (message, sender) => {
 
     try {
       const summary = await getSummary(message.url);
-      console.log(summary)
       console.log("Summary received, sending to content.js")
       chrome.tabs.sendMessage(sender.tab.id, { summary: summary, overlayId: message.overlayId });
     } catch (error) {
@@ -63,6 +65,36 @@ chrome.runtime.onMessage.addListener(async (message, sender) => {
 });
 
 
+function getApiKey() {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get(['apiKey'], function(result) {
+      if (chrome.runtime.lastError) {
+        return reject(chrome.runtime.lastError);
+      }
+      resolve(result.apiKey);
+    });
+  });
+}
+
+
+function getDataContent(data) {
+  if (
+    (
+      (!data)
+      || (!data.choices)
+      || (!data.choices[0])
+      || (!data.choices[0].message)
+      || (!data.choices[0].message.content)
+
+    )
+  ) {
+    return "Data missing";
+  } else {
+    return data.choices[0].message.content
+  }
+
+}
+
 /**
  * 
  * @param {str} url url address of the clickbait article or web page
@@ -71,11 +103,11 @@ chrome.runtime.onMessage.addListener(async (message, sender) => {
 async function getSummary(url) {
   const article = await Article(url);
   const title = article.title;
-  const body = article.body;
+  const body = article.text;
   
   console.log(article);
 
-  if (!(title && text)) 
+  if (!(title && body)) 
     throw new Error("missing article title or text");
 
   pre_prompt = PROMPTS["en"]
@@ -86,29 +118,40 @@ async function getSummary(url) {
   console.log(full_prompt)
   
   let result = {
-    title: article.title,
-    body: article.text,
-    answer: "<summary placeholder> " + article.title,
+    title: title,
+    body: body,
+    answer: "<summary placeholder> " + title,
   };
   console.log(result);
 
-  return result;
-  // const response = await fetch("http://localhost:8000", {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //   },
-  //   body: JSON.stringify({ url: url }),
-  // });
+  const apiKey = await getApiKey(); // Get the API Key
 
-  // return await response.json();
-  // TODO: replace with actual api once hosted
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        "model": "gpt-3.5-turbo",
+        "messages": full_prompt,
+        "temperature": 0.7
+      }),
+    });
 
-  // console.log("response received")
-  // console.log(response)
+    console.log(response);
 
-  // if (!response.ok) {
-  //   throw new Error("Failed to fetch summary");
-  // }
+    if (!response.ok) {
+      throw new Error("OpenAI request failed");
+    }
 
+    const data = await response.json();
+    result.answer = getDataContent(data);
+
+    return result;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 }
