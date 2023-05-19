@@ -124,7 +124,7 @@ async function getSummary(url) {
   };
   console.log(result);
 
-  const apiKey = await getApiKey(); // Get the API Key
+  const apiKey = await getApiKey();
 
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
