@@ -7,13 +7,25 @@
         width: 300px;
         margin: 0;
         padding: 10px;
+        padding-bottom: 50px;  /* add padding to bottom to accommodate footer */
         font-family: Arial, sans-serif;
+        box-sizing: border-box;  /* include padding and border in element's total width and height */
       }
       div {
         margin-bottom: 10px;
       }
       button {
         width: 200px;
+      }
+      /* Add styles for the footer */
+      footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        /* text-align: center; */
+        padding: 10px 0;
+        border-top: 1px solid #ccc;
+        background-color: white;  /* to prevent text under the footer from being visible */
       }
     </style>
   </head>
@@ -26,6 +38,12 @@
     </div>
     <button id="saveApiKey">Save API Key</button>
     <button id="changeApiKey" style="display: none;">Change API Key</button>
+
     <script src="../dist/popup.js"></script>
+
+    <!-- Add a footer with a hyperlink -->
+    <footer>
+      <a href="https://platform.openai.com/account/usage" target="_blank">This is a shortcut to your api cost graph!</a>
+    </footer>
   </body>
 </html>
