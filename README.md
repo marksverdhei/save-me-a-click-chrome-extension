@@ -1,6 +1,9 @@
 # Save Me A Click - Chrome Extension
 
-Save Me A Click is a Chrome extension that provides a summary of a webpage when right-clicking on a link. It displays a popup with a title, body, and summary without needing to open the page.
+Save Me A Click is a Chrome extension that provides a summary of a webpage when right-clicking on a link. It displays a popup with a title, body, and summary without needing to open the page.  
+
+![Chrome extension demo](gif/demo.gif)
+
 
 ## Features
 
@@ -28,3 +31,9 @@ The extension should now be installed and active in your Chrome browser.
 - `background.js`: Handles context menu creation and message passing between content and background scripts.
 - `content.js`: Handles DOM manipulation to display the summary overlay and manages communication with the background script.
 - `overlay.css`: Contains the styling for the summary overlay and spinner.
+
+## Building project locally  
+
+1. Make sure you have npm installed. If not, install npm  
+2. run `npm i`  
+3. run `npx webpack`  
