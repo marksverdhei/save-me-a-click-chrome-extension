@@ -1,29 +1,32 @@
-const Article = require("newspaperjs").Article
+const Article = require("newspaperjs").Article;
 const PROMPTS = {
-  "en": [
-      {
-          "role": "system",
-          "content": "You are a tool that generates saved-you-a-click summaries when provided clickbait titles and content",
-      },
-      {
-          "role": "user",
-          "content": "Given the title and the body of a clickbait article, please provide the information that one might desire upon reading the title. Make the answer as brief as you can.\n" +
-          "If there is no information in the article content that answers the title, provide your answer as 'The article doesn't say'",
-      },
+  en: [
+    {
+      role: "system",
+      content:
+        "You are a tool that generates saved-you-a-click summaries when provided clickbait titles and content",
+    },
+    {
+      role: "user",
+      content:
+        "Given the title and the body of a clickbait article, please provide the information that one might desire upon reading the title. Make the answer as brief as you can.\n" +
+        "If there is no information in the article content that answers the title, provide your answer as 'The article doesn't say'",
+    },
   ],
-  "en_yt": [
-      {
-          "role": "system",
-          "content": "You are a tool that generates saved-you-a-click summaries when provided clickbait titles and video transcritps",
-      },
-      {
-          "role": "user",
-          "content": "Given the title of a clickbait youtube video, and the transcript of the video. Provide the information that one might desire upon reading the title. Make the answer as brief as you can.\n" +
-          "If there is no information in the transcript content that answers the title, provide your answer as a brief statement about the information not being present in the video.\n"
-      },
+  en_yt: [
+    {
+      role: "system",
+      content:
+        "You are a tool that generates saved-you-a-click summaries when provided clickbait titles and video transcritps",
+    },
+    {
+      role: "user",
+      content:
+        "Given the title of a clickbait youtube video, and the transcript of the video. Provide the information that one might desire upon reading the title. Make the answer as brief as you can.\n" +
+        "If there is no information in the transcript content that answers the title, provide your answer as a brief statement about the information not being present in the video.\n",
+    },
   ],
-}
-
+};
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
@@ -33,41 +36,47 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "saveMeAClick") {
-    console.log("Sending saveMeAClick to content.js")
+    console.log("Sending saveMeAClick to content.js");
     chrome.tabs.sendMessage(tab.id, { url: info.linkUrl });
   }
 });
 
-
 chrome.runtime.onMessage.addListener(async (message, sender) => {
   if (message.type === "startSpinner") {
-    chrome.tabs.sendMessage(sender.tab.id, { startSpinner: true, url: message.url });
+    chrome.tabs.sendMessage(sender.tab.id, {
+      startSpinner: true,
+      url: message.url,
+    });
   }
   if (message.type === "fetchSummary") {
-    console.log("Received fetchSummary from content.js. Sending spinnner")
+    console.log("Received fetchSummary from content.js. Sending spinnner");
     // Send the message to start the spinner
 
     try {
       const summary = await getSummary(message.url);
-      console.log("Summary received, sending to content.js")
-      chrome.tabs.sendMessage(sender.tab.id, { summary: summary, overlayId: message.overlayId });
+      console.log("Summary received, sending to content.js");
+      chrome.tabs.sendMessage(sender.tab.id, {
+        summary: summary,
+        overlayId: message.overlayId,
+      });
     } catch (error) {
-      console.log("There was an error, sending to content.js")
-      console.log(error.name); 
+      console.log("There was an error, sending to content.js");
+      console.log(error.name);
       console.log(error.message);
       console.log(error.stack);
-      chrome.tabs.sendMessage(sender.tab.id, { error: error.message, overlayId: message.overlayId });
+      chrome.tabs.sendMessage(sender.tab.id, {
+        error: error.message,
+        overlayId: message.overlayId,
+      });
     }
   }
 });
 
-
 function getApiKey() {
   return new Promise((resolve, reject) => {
-    chrome.storage.sync.get(['apiKey'], function(result) {
+    chrome.storage.sync.get(["apiKey"], function (result) {
       if (chrome.runtime.lastError) {
         return reject(chrome.runtime.lastError);
       }
@@ -76,27 +85,22 @@ function getApiKey() {
   });
 }
 
-
 function getDataContent(data) {
   if (
-    (
-      (!data)
-      || (!data.choices)
-      || (!data.choices[0])
-      || (!data.choices[0].message)
-      || (!data.choices[0].message.content)
-
-    )
+    !data ||
+    !data.choices ||
+    !data.choices[0] ||
+    !data.choices[0].message ||
+    !data.choices[0].message.content
   ) {
     return "Data missing";
   } else {
-    return data.choices[0].message.content
+    return data.choices[0].message.content;
   }
-
 }
 
 /**
- * 
+ *
  * @param {str} url url address of the clickbait article or web page
  * @returns {object} summary of the given clickbait content
  */
@@ -104,19 +108,18 @@ async function getSummary(url) {
   const article = await Article(url);
   const title = article.title;
   const body = article.text;
-  
+
   console.log(article);
 
-  if (!(title && body)) 
-    throw new Error("missing article title or text");
+  if (!(title && body)) throw new Error("missing article title or text");
 
-  pre_prompt = PROMPTS["en"]
+  pre_prompt = PROMPTS["en"];
   full_prompt = pre_prompt.concat([
-    {"role": "user", "content": `<article-title>${title}</article-title>`},
-    {"role": "user", "content": `<article-body>${body}</article-body>`},
-  ])
-  console.log(full_prompt)
-  
+    { role: "user", content: `<article-title>${title}</article-title>` },
+    { role: "user", content: `<article-body>${body}</article-body>` },
+  ]);
+  console.log(full_prompt);
+
   let result = {
     title: title,
     body: body,
@@ -131,12 +134,12 @@ async function getSummary(url) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        "model": "gpt-3.5-turbo",
-        "messages": full_prompt,
-        "temperature": 0.7
+        model: "gpt-3.5-turbo",
+        messages: full_prompt,
+        temperature: 0.7,
       }),
     });
 
