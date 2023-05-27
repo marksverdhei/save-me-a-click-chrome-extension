@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Save Me A Click",
-  "version": "1.0",
+  "version": "1.0.1",
   "description": "Summarize any link with a right-click",
   "permissions": [
     "contextMenus",
@@ -25,5 +25,10 @@
       "js": ["dist/content.js"],
       "css": ["css/overlay.css"]
     }
-  ]
+  ],
+  "icons": {
+    "16": "assets/icon16.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  }
 }
