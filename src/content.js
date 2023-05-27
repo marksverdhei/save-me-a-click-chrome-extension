@@ -7,9 +7,18 @@ document.addEventListener("contextmenu", (event) => {
 
 chrome.runtime.onMessage.addListener((message, sender) => {
   if (message.startSpinner) {
-    const overlay = displayOverlay("Loading...", "", "", lastRightClickPosition.x, lastRightClickPosition.y);
-    chrome.runtime.sendMessage({ url: message.url, type: "fetchSummary", overlayId: overlay.id })
-
+    const overlay = displayOverlay(
+      "Loading...",
+      "",
+      "",
+      lastRightClickPosition.x,
+      lastRightClickPosition.y
+    );
+    chrome.runtime.sendMessage({
+      url: message.url,
+      type: "fetchSummary",
+      overlayId: overlay.id,
+    });
   } else if (message.summary) {
     const { title, body, answer } = message.summary;
     console.log("summary received in content.js. Updating overlay");
@@ -17,16 +26,15 @@ chrome.runtime.onMessage.addListener((message, sender) => {
   } else if (message.error) {
     updateOverlay(message.overlayId, "Error", "", message.error);
   } else {
-    chrome.runtime.sendMessage({ url: message.url, type: "startSpinner" })
+    chrome.runtime.sendMessage({ url: message.url, type: "startSpinner" });
   }
 });
-
 
 function updateOverlay(overlayId, title, body, summary) {
   console.log("Update overlay called");
   const overlay = document.getElementById(overlayId);
-  console.log(overlayId)
-  console.log(overlay)
+  console.log(overlayId);
+  console.log(overlay);
 
   // Remove the spinner
   const spinner = overlay.querySelector(".spinner");
@@ -48,13 +56,11 @@ function updateOverlay(overlayId, title, body, summary) {
   overlayBox.appendChild(summaryEl);
 }
 
-
-
 function displayOverlay(title, body, summary, x, y) {
   // Create the overlay elements
   const overlay = document.createElement("div");
   overlay.className = "overlay";
-  overlay.id = "overlay" + document.querySelectorAll(".overlay").length
+  overlay.id = "overlay" + document.querySelectorAll(".overlay").length;
   overlay.style.left = `${x}px`;
   overlay.style.top = `${y}px`;
 
@@ -86,6 +92,3 @@ function displayOverlay(title, body, summary, x, y) {
 
   return overlay;
 }
-
-
-
