@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Save Me A Click",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Summarize any link with a right-click",
   "permissions": [
     "contextMenus",
