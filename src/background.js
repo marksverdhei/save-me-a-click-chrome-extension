@@ -1,6 +1,9 @@
 const Article = require("newspaperjs").Article
+const LanguageDetect = require('languagedetect');
+const languageDetector = new LanguageDetect();
+
 const PROMPTS = {
-  "en": [
+  "english": [
       {
           "role": "system",
           "content": "You are a tool that generates saved-you-a-click summaries when provided clickbait titles and content",
@@ -11,17 +14,21 @@ const PROMPTS = {
           "If there is no information in the article content that answers the title, provide your answer as 'The article doesn't say'",
       },
   ],
-  "en_yt": [
-      {
-          "role": "system",
-          "content": "You are a tool that generates saved-you-a-click summaries when provided clickbait titles and video transcritps",
-      },
-      {
-          "role": "user",
-          "content": "Given the title of a clickbait youtube video, and the transcript of the video. Provide the information that one might desire upon reading the title. Make the answer as brief as you can.\n" +
-          "If there is no information in the transcript content that answers the title, provide your answer as a brief statement about the information not being present in the video.\n"
-      },
-  ],
+  // Options to enter other languages here
+}
+
+function getMissingLanguagePrompt(language) {
+  return [
+    {
+        "role": "system",
+        "content": `You are a tool that generates saved-you-a-click summaries when provided clickbait titles and content written in ${language}`,
+    },
+    {
+        "role": "user",
+        "content": "Given the title and the body of a clickbait article, please provide the information that one might desire upon reading the title. Make the answer as brief as you can.\n" +
+        `If there is no information in the article content that answers the title, provide your answer as 'The article doesn't say' in ${language}. Write your response in ${language}`,
+    },
+  ]
 }
 
 
@@ -105,17 +112,25 @@ async function getSummary(url) {
   const title = article.title;
   const body = article.text;
   
-  console.log(article);
-
   if (!(title && body)) 
     throw new Error("missing article title or text");
+  
+  const languages = languageDetector.detect(title + body, 1);
+  console.log(languages)
+  const language = languages[0][0];
+  console.log(language)
 
-  pre_prompt = PROMPTS["en"]
-  full_prompt = pre_prompt.concat([
+  if (language in PROMPTS) {
+    prePrompt = PROMPTS[language];
+  } else {
+    prePrompt = getMissingLanguagePrompt(language);
+  }
+
+  fullPrompt = prePrompt.concat([
     {"role": "user", "content": `<article-title>${title}</article-title>`},
     {"role": "user", "content": `<article-body>${body}</article-body>`},
   ])
-  console.log(full_prompt)
+  console.log(fullPrompt)
   
   let result = {
     title: title,
@@ -135,7 +150,7 @@ async function getSummary(url) {
       },
       body: JSON.stringify({
         "model": "gpt-3.5-turbo",
-        "messages": full_prompt,
+        "messages": fullPrompt,
         "temperature": 0.7
       }),
     });
