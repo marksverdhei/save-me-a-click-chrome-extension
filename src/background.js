@@ -12,8 +12,13 @@ const PROMPTS = {
     {
       role: "user",
       content:
-        "Given the title and the body of a clickbait article, please provide the information that one might desire upon reading the title. Make the answer as brief as you can.\n" +
-        "If there is no information in the article content that answers the title, provide your answer as 'The article doesn't say'",
+        "Your task is the following: Given the title and the body of a clickbait article, provide the information that one would desire or wonder about upon reading the title.\n" +
+        "* Be exact, on point and provide your answer as a repsonse to the title, and make your answers brief, preferrably in one sentence.\n" +
+        "  Example: Costco shoppers shifting away from specific item; CFO says it’s indicator of recession | Beef and steaks.\n" +
+        "* If the article is a list of N items, simply list each item and nothing else.\n" +
+        "  Example: 5 Fast-Food Chains That Have Gone From the Best to the Bottom In a Few Years | Burgerim, Quiznos, Boston Market, Red Barn, Burger Chef\n" +
+        "* If there is not sufficient information in the article body to answer the title, state so in the answer.\n" +
+        "  Example: Why Big Tech execs are swapping the boardroom for the dojo | Article doesn't say\n\n",
     },
   ],
   // Options to enter other languages here
