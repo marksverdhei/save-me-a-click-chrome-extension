@@ -20,6 +20,24 @@ Save Me A Click is a Chrome extension that provides a summary of a webpage when 
 
 The extension should now be installed and active in your Chrome browser.
 
+## Setting API key  
+
+In order for the extension to work, you need to set an OpenAI API key.  
+To set the API key simply click the chrome extension icon and paste in the key in the field.  
+
+![A screenshot of what the field looks like](gif/api_field.png)
+
+#### How to get an Openai API key  
+
+1. Create an account at https://openai.com/
+2. Register your account as a paid account https://platform.openai.com/account/billing/overview (currently, free trial does not work. Also, )
+3. Create a new API key at https://platform.openai.com/account/api-keys (copy it and save it somewhere)
+This currently only works for paid accounts (ass opposed to free-trial accounts)
+
+For your own usage, save me a click should be very cheap in terms of api costs. 
+You can try setting a hard limit of costs here: https://platform.openai.com/account/billing/limits
+
+
 ## Usage
 
 1. Right-click on any link in a webpage.
