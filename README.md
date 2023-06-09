@@ -30,7 +30,7 @@ To set the API key simply click the chrome extension icon and paste in the key i
 #### How to get an Openai API key  
 
 1. Create an account at https://openai.com/
-2. Register your account as a paid account https://platform.openai.com/account/billing/overview (currently, free trial does not work. Also, )
+2. Register your account as a paid account https://platform.openai.com/account/billing/overview (free trial does not work)
 3. Create a new API key at https://platform.openai.com/account/api-keys (copy it and save it somewhere)
 This currently only works for paid accounts (ass opposed to free-trial accounts)
 
