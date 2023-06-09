@@ -123,9 +123,8 @@ async function getSummary(url) {
   if (!(title && body)) throw new Error("missing article title or text");
 
   const languages = languageDetector.detect(title + body, 1);
-  console.log(languages);
   const language = languages[0][0];
-  console.log(language);
+  console.log(`Detected language: ${language}`);
 
   if (language in PROMPTS) {
     prePrompt = PROMPTS[language];
@@ -148,6 +147,13 @@ async function getSummary(url) {
 
   const apiKey = await getApiKey();
 
+  console.log("Api-key:")
+  console.log(apiKey)
+
+  if (!apiKey) {
+    throw Error("OpenAI API key not set! Follow the steps in the github readme on how to get an API key");
+  }
+
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -165,7 +171,11 @@ async function getSummary(url) {
     console.log(response);
 
     if (!response.ok) {
-      throw new Error("OpenAI request failed");
+      if (response.status == 401) {
+        throw new Error("OpenAI: Unauthorized. There is probably something wrong with your API key. Make sure you have followed the steps on the github readme.");
+      } else {
+        throw new Error(`OpenAI request failed. Status: ${response.status}`);
+      }
     }
 
     const data = await response.json();
