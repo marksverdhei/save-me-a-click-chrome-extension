@@ -1,3 +1,5 @@
+import { parseTrackingLink } from "./parse";
+
 const Article = require("newspaperjs").Article;
 const LanguageDetect = require("languagedetect");
 const languageDetector = new LanguageDetect();
@@ -120,6 +122,8 @@ function getDataContent(data) {
  * @returns {object} summary of the given clickbait content
  */
 async function getSummary(url) {
+  url = parseTrackingLink(url);
+
   const article = await Article(url);
   const title = article.title;
   const body = article.text;
@@ -130,13 +134,14 @@ async function getSummary(url) {
   const language = languages[0][0];
   console.log(`Detected language: ${language}`);
 
+  let prePrompt;
   if (language in PROMPTS) {
     prePrompt = PROMPTS[language];
   } else {
     prePrompt = getMissingLanguagePrompt(language);
   }
 
-  fullPrompt = prePrompt.concat([
+  const fullPrompt = prePrompt.concat([
     { role: "user", content: `<article-title>${title}</article-title>` },
     { role: "user", content: `<article-body>${body}</article-body>` },
   ]);
@@ -152,9 +157,13 @@ async function getSummary(url) {
   const apiKey = await getApiKey();
 
   if (!apiKey) {
-    throw Error("OpenAI API key not set! Follow the steps in the github readme on how to get an API key");
+    throw Error(
+      "OpenAI API key not set! Follow the steps in the github readme on how to get an API key"
+    );
   } else if (!isValidOpenAIAPIKey(apiKey)) {
-    throw Error("Invalid OpenAI API key. The API key should start with 'sk-' or 'ek-'");
+    throw Error(
+      "Invalid OpenAI API key. The API key should start with 'sk-' or 'ek-'"
+    );
   }
 
   try {
@@ -180,9 +189,11 @@ async function getSummary(url) {
       if (errorCode === "invalid_api_key") {
         throw new Error(`OpenAI request failed: Invalid API key`);
       } else if (error) {
-        throw new Error(`OpenAI request failed:\n${JSON.stringify(error)}`)
+        throw new Error(`OpenAI request failed:\n${JSON.stringify(error)}`);
       } else {
-        throw new Error(`OpenAI request failed. Status code: ${response.status}`)
+        throw new Error(
+          `OpenAI request failed. Status code: ${response.status}`
+        );
       }
     }
 
