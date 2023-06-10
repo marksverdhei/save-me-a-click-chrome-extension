@@ -2,6 +2,8 @@ const Article = require("newspaperjs").Article;
 const LanguageDetect = require("languagedetect");
 const languageDetector = new LanguageDetect();
 
+const MODEL = "gpt-3.5-turbo";
+
 const PROMPTS = {
   english: [
     {
@@ -23,6 +25,14 @@ const PROMPTS = {
   ],
   // Options to enter other languages here
 };
+
+function isValidOpenAIAPIKey(apiKey) {
+  // Regular expression for OpenAI API key pattern
+  const pattern = /^(sk|ek)-\w+$/;
+
+  // Check if apiKey matches the pattern
+  return pattern.test(apiKey);
+}
 
 function getMissingLanguagePrompt(language) {
   return [
@@ -97,17 +107,11 @@ function getApiKey() {
 }
 
 function getDataContent(data) {
-  if (
-    !data ||
-    !data.choices ||
-    !data.choices[0] ||
-    !data.choices[0].message ||
-    !data.choices[0].message.content
-  ) {
-    return "Data missing";
-  } else {
-    return data.choices[0].message.content;
+  const content = data?.choices?.[0]?.message?.content;
+  if (!content) {
+    throw Error("There was an error getting the ChatGPT response.");
   }
+  return content;
 }
 
 /**
@@ -147,11 +151,10 @@ async function getSummary(url) {
 
   const apiKey = await getApiKey();
 
-  console.log("Api-key:")
-  console.log(apiKey)
-
   if (!apiKey) {
     throw Error("OpenAI API key not set! Follow the steps in the github readme on how to get an API key");
+  } else if (!isValidOpenAIAPIKey(apiKey)) {
+    throw Error("Invalid OpenAI API key. The API key should start with 'sk-' or 'ek-'");
   }
 
   try {
@@ -162,23 +165,27 @@ async function getSummary(url) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
+        model: MODEL,
         messages: fullPrompt,
         temperature: 0.7,
       }),
     });
 
-    console.log(response);
+    const data = await response.json();
 
     if (!response.ok) {
-      if (response.status == 401) {
-        throw new Error("OpenAI: Unauthorized. There is probably something wrong with your API key. Make sure you have followed the steps on the github readme.");
+      const error = data?.error;
+      const errorCode = error?.code;
+
+      if (errorCode === "invalid_api_key") {
+        throw new Error(`OpenAI request failed: Invalid API key`);
+      } else if (error) {
+        throw new Error(`OpenAI request failed:\n${JSON.stringify(error)}`)
       } else {
-        throw new Error(`OpenAI request failed. Status: ${response.status}`);
+        throw new Error(`OpenAI request failed. Status code: ${response.status}`)
       }
     }
 
-    const data = await response.json();
     result.answer = getDataContent(data);
 
     return result;
