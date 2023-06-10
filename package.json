@@ -1,6 +1,6 @@
 {
   "name": "save-me-a-click",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Save Me A Click is a Chrome extension that provides a summary of a webpage when right-clicking on a link. It displays a popup with a title, body, and summary without needing to open the page.",
   "main": "index.js",
   "scripts": {
