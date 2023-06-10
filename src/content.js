@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 let lastRightClickPosition = { x: 0, y: 0 };
 
 document.addEventListener("contextmenu", (event) => {
@@ -5,7 +7,7 @@ document.addEventListener("contextmenu", (event) => {
   lastRightClickPosition.y = event.pageY;
 });
 
-chrome.runtime.onMessage.addListener((message, sender) => {
+browser.runtime.onMessage.addListener((message, sender) => {
   if (message.startSpinner) {
     const overlay = displayOverlay(
       "Loading...",
@@ -14,7 +16,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
       lastRightClickPosition.x,
       lastRightClickPosition.y
     );
-    chrome.runtime.sendMessage({
+    browser.runtime.sendMessage({
       url: message.url,
       type: "fetchSummary",
       overlayId: overlay.id,
@@ -26,7 +28,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
   } else if (message.error) {
     updateOverlay(message.overlayId, "Error", "", message.error);
   } else {
-    chrome.runtime.sendMessage({ url: message.url, type: "startSpinner" });
+    browser.runtime.sendMessage({ url: message.url, type: "startSpinner" });
   }
 });
 

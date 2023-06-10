@@ -1,4 +1,5 @@
 import { parseTrackingLink } from "./parse";
+import browser from 'webextension-polyfill';
 
 const Article = require("newspaperjs").Article;
 const LanguageDetect = require("languagedetect");
@@ -51,24 +52,24 @@ function getMissingLanguagePrompt(language) {
   ];
 }
 
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
+browser.runtime.onInstalled.addListener(() => {
+  browser.contextMenus.create({
     id: "saveMeAClick",
     title: "Save me a click",
     contexts: ["link"],
   });
 });
 
-chrome.contextMenus.onClicked.addListener((info, tab) => {
+browser.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "saveMeAClick") {
     console.log("Sending saveMeAClick to content.js");
-    chrome.tabs.sendMessage(tab.id, { url: info.linkUrl });
+    browser.tabs.sendMessage(tab.id, { url: info.linkUrl });
   }
 });
 
-chrome.runtime.onMessage.addListener(async (message, sender) => {
+browser.runtime.onMessage.addListener(async (message, sender) => {
   if (message.type === "startSpinner") {
-    chrome.tabs.sendMessage(sender.tab.id, {
+    browser.tabs.sendMessage(sender.tab.id, {
       startSpinner: true,
       url: message.url,
     });
@@ -80,7 +81,7 @@ chrome.runtime.onMessage.addListener(async (message, sender) => {
     try {
       const summary = await getSummary(message.url);
       console.log("Summary received, sending to content.js");
-      chrome.tabs.sendMessage(sender.tab.id, {
+      browser.tabs.sendMessage(sender.tab.id, {
         summary: summary,
         overlayId: message.overlayId,
       });
@@ -89,7 +90,7 @@ chrome.runtime.onMessage.addListener(async (message, sender) => {
       console.log(error.name);
       console.log(error.message);
       console.log(error.stack);
-      chrome.tabs.sendMessage(sender.tab.id, {
+      browser.tabs.sendMessage(sender.tab.id, {
         error: error.message,
         overlayId: message.overlayId,
       });
@@ -98,14 +99,13 @@ chrome.runtime.onMessage.addListener(async (message, sender) => {
 });
 
 function getApiKey() {
-  return new Promise((resolve, reject) => {
-    chrome.storage.sync.get(["apiKey"], function (result) {
-      if (chrome.runtime.lastError) {
-        return reject(chrome.runtime.lastError);
-      }
-      resolve(result.apiKey);
+  return browser.storage.sync.get("apiKey")
+    .then((result) => {
+      return result.apiKey;
+    })
+    .catch((error) => {
+      console.error(error);
     });
-  });
 }
 
 function getDataContent(data) {

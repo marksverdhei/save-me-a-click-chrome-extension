@@ -19,7 +19,8 @@
     "languagedetect": "^2.0.0",
     "newspaperjs": "^1.0.8",
     "path-browserify": "^1.0.1",
-    "process": "^0.11.10"
+    "process": "^0.11.10",
+    "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {
     "@babel/core": "^7.21.8",
