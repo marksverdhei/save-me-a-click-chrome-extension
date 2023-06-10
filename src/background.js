@@ -2,6 +2,8 @@ const Article = require("newspaperjs").Article;
 const LanguageDetect = require("languagedetect");
 const languageDetector = new LanguageDetect();
 
+const MODEL = "gpt-3.5-turbo";
+
 const PROMPTS = {
   english: [
     {
@@ -23,6 +25,14 @@ const PROMPTS = {
   ],
   // Options to enter other languages here
 };
+
+function isValidOpenAIAPIKey(apiKey) {
+  // Regular expression for OpenAI API key pattern
+  const pattern = /^(sk|ek)-\w+$/;
+
+  // Check if apiKey matches the pattern
+  return pattern.test(apiKey);
+}
 
 function getMissingLanguagePrompt(language) {
   return [
@@ -97,17 +107,11 @@ function getApiKey() {
 }
 
 function getDataContent(data) {
-  if (
-    !data ||
-    !data.choices ||
-    !data.choices[0] ||
-    !data.choices[0].message ||
-    !data.choices[0].message.content
-  ) {
-    return "Data missing";
-  } else {
-    return data.choices[0].message.content;
+  const content = data?.choices?.[0]?.message?.content;
+  if (!content) {
+    throw Error("There was an error getting the ChatGPT response.");
   }
+  return content;
 }
 
 /**
@@ -123,9 +127,8 @@ async function getSummary(url) {
   if (!(title && body)) throw new Error("missing article title or text");
 
   const languages = languageDetector.detect(title + body, 1);
-  console.log(languages);
   const language = languages[0][0];
-  console.log(language);
+  console.log(`Detected language: ${language}`);
 
   if (language in PROMPTS) {
     prePrompt = PROMPTS[language];
@@ -148,6 +151,12 @@ async function getSummary(url) {
 
   const apiKey = await getApiKey();
 
+  if (!apiKey) {
+    throw Error("OpenAI API key not set! Follow the steps in the github readme on how to get an API key");
+  } else if (!isValidOpenAIAPIKey(apiKey)) {
+    throw Error("Invalid OpenAI API key. The API key should start with 'sk-' or 'ek-'");
+  }
+
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -156,19 +165,27 @@ async function getSummary(url) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
+        model: MODEL,
         messages: fullPrompt,
         temperature: 0.7,
       }),
     });
 
-    console.log(response);
+    const data = await response.json();
 
     if (!response.ok) {
-      throw new Error("OpenAI request failed");
+      const error = data?.error;
+      const errorCode = error?.code;
+
+      if (errorCode === "invalid_api_key") {
+        throw new Error(`OpenAI request failed: Invalid API key`);
+      } else if (error) {
+        throw new Error(`OpenAI request failed:\n${JSON.stringify(error)}`)
+      } else {
+        throw new Error(`OpenAI request failed. Status code: ${response.status}`)
+      }
     }
 
-    const data = await response.json();
     result.answer = getDataContent(data);
 
     return result;
