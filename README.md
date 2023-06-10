@@ -5,11 +5,18 @@ Save Me A Click is a Chrome extension that provides a summary of a webpage when 
 ![Chrome extension demo](gif/demo.gif)
 
 
-## Features
+## Features  
 
 - Right-click context menu item to fetch summary
 - Displays an overlay with the fetched summary
 - Overlay can be closed by clicking outside the popup
+
+Current supported social media websites:  
+- [X] Facebook  
+- [X] Linkedin  
+- [X] Youtube  
+- [ ] Instagram  
+- [ ] Twitter  
 
 ## Installation
 
