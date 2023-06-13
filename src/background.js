@@ -1,7 +1,8 @@
 import { parseTrackingLink } from "./parse";
+import { Article } from "newspaperjs";
+import LanguageDetect from "languagedetect";
 
-const Article = require("newspaperjs").Article;
-const LanguageDetect = require("languagedetect");
+
 const languageDetector = new LanguageDetect();
 
 const MODEL = "gpt-3.5-turbo";
