@@ -20,7 +20,7 @@ Current supported social media websites:
 
 ## Installation
 
-1. Download the pre-built extension zip file from [our latest release](https://github.com/marksverdhei/save-me-a-click-chrome-extension/releases/tag/latest)
+1. Download the pre-built extension zip file from [our latest release](https://github.com/marksverdhei/save-me-a-click-chrome-extension/releases/latest)
 2. Unzip the file in the directory you want your chrome extension
 3. Open Google Chrome and navigate to `chrome://extensions/`.
 4. Enable "Developer mode" by toggling the switch in the top right corner.
