@@ -40,9 +40,7 @@ module.exports = {
       "buffer": require.resolve("buffer/"),
       "zlib": require.resolve("browserify-zlib"),
       "path": require.resolve("path-browserify"),
-
-    //   "process": require.resolve("process-browserify"),
-
+      "querystring": require.resolve("querystring-es3"),
       "fs": require.resolve("browserify-fs"),
       "tls": false, // Set to false if there is no browser equivalent
       "net": false // Set to false if there is no browser equivalent
