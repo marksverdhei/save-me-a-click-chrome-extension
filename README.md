@@ -2,7 +2,7 @@
 
 Save Me A Click is a Chrome extension that provides a summary of a webpage when right-clicking on a link. It displays a popup with a title, body, and summary without needing to open the page.  
 
-![Get it on the chrome web store](https://chrome.google.com/webstore/detail/save-me-a-click/cnhbeajhcgafdechfbffebemcnfkofbh/related)  
+[Get it on the chrome web store](https://chrome.google.com/webstore/detail/save-me-a-click/cnhbeajhcgafdechfbffebemcnfkofbh/related)  
 
 ![Chrome extension demo](gif/demo.gif)
 
