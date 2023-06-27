@@ -1,4 +1,7 @@
-# Save Me A Click - Chrome Extension
+# Save Me A Click - Chrome Extension  
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/marksverdhei)  
+
 
 Save Me A Click is a Chrome extension that provides a summary of a webpage when right-clicking on a link. It displays a popup with a title, body, and summary without needing to open the page.  
 
